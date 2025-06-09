@@ -12,19 +12,19 @@ Android device root solution based on [KernelSU](https://github.com/tiann/Kernel
 
 ## How to add
 
-Using main branching (non-GKI device builds are not supported)
+Using main branching (non-GKI device builds are not supported) (requires manual integration of susfs)
 ```
 curl -LSs "https://raw.githubusercontent.com/SukiSU-Ultra/SukiSU-Ultra/main/kernel/setup.sh" | bash -s main
 ```
 
-Using branches that support non-GKI devices
+Using branches that support non-GKI devices (requires manual integration of susfs)
 ```
 curl -LSs "https://raw.githubusercontent.com/SukiSU-Ultra/SukiSU-Ultra/main/kernel/setup.sh" | bash -s nongki
 ```
 
 ## How to use integrated susfs
 
-1. Use the susfs-dev branch directly without any patching
+1. Use the susfs-dev branch directly without any patching (Support for non-GKI device builds)
 
 ```
 curl -LSs "https://raw.githubusercontent.com/SukiSU-Ultra/SukiSU-Ultra/main/kernel/setup.sh" | bash -s susfs-dev
@@ -110,10 +110,17 @@ Please **all** refer to https://kernelsu.org/zh_CN/guide/installation.html
 5. More customization
 6. Support for KPM kernel modules
 
+## Troubleshooting
+
+1. Uninstalling the KernelSU Manager device is stuck. → Uninstall the application with package name com.sony.playmemories.mobile.
+
 ## License
 
 - The file in the “kernel” directory is under [GPL-2.0-only](https://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html) license.
-- All other parts except the “kernel” directory are under [GPL-3.0 or later](https://www.gnu.org/licenses/gpl-3.0.html) license.
+
+- The images of the files `ic_launcher(?!.*alt.*).*` with anime character emoticons are copyrighted by [五十根大虾仁](https://space.bilibili.com/370927), the Brand Intellectual Property in the images is owned by [明风OuO](https://space.bilibili.com/274939213), and the vectorization is done by @MiRinChan. Before using these files, in addition to complying with [Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International](https://creativecommons.org/licenses/by-nc-sa/4.0/legalcode.txt), you also need to comply with the authorization of the two authors to use these artistic contents.
+
+- Except for the files or directories mentioned above, all other parts are under [GPL-3.0 or later](https://www.gnu.org/licenses/gpl-3.0.html) license.
 
 ## Sponsorship list
 
@@ -122,8 +129,8 @@ Please **all** refer to https://kernelsu.org/zh_CN/guide/installation.html
 - [wswzgdg](https://github.com/wswzgdg) Many thanks for supporting this project
 - [yspbwx2010](https://github.com/yspbwx2010) Many thanks
 - [DARKWWEE](https://github.com/DARKWWEE) Thanks for the 100 USDT Lao
-
-If the above list does not have your name, I will update it as soon as possible, and thanks again for your support!
+- [Saksham Singla](https://github.com/TypeFlu) Website provision as well as maintenance
+- [OukaroMF](https://github.com/OukaroMF) Donation of website domain name
 
 ## Contributions
 

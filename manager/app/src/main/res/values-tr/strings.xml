@@ -113,7 +113,7 @@
     <string name="grant_root_failed">Root yetkisi verilemedi!</string>
     <string name="action">Action</string>
     <string name="open">Aç</string>
-    <string name="close">Close</string>
+    <string name="close">Kapat</string>
     <string name="enable_web_debugging">WebView hata ayıklama etkinleştir</string>
     <string name="enable_web_debugging_summary">WebUI\'yi hata ayıklamak için kullanılabilir. Sadece ihtiyaç duyulduğunda etkinleştirin.</string>
     <string name="direct_install">Doğrudan yükleme (Önerilen)</string>
@@ -190,7 +190,7 @@
     <string name="hide_kernel_kernelsu_version">Çekirdek sürümünü gizle</string>
     <string name="hide_kernel_kernelsu_version_summary">Çekirdek sürümünü gizle</string>
     <string name="hide_other_info">Diğer bilgileri gizle</string>
-    <string name="hide_other_info_summary">Ana sayfadaki süper kullanıcı sayısı, modüller ve KPM modülleri hakkındaki bilgileri gizler</string>
+    <string name="hide_other_info_summary">Gezinme çubuğu sayfasında süper kullanıcı, modül ve KPM modülü sayısı hakkında bilgi veren kırmızı noktayı gizler</string>
     <string name="hide_susfs_status">SuSFS durumunu gizle</string>
     <string name="hide_susfs_status_summary">Ana sayfadaki SuSFS durum bilgilerini gizle</string>
     <string name="hide_link_card">Bağlantı Kartı Durumunu Gizle</string>
@@ -289,20 +289,19 @@
     <string name="horizon_getting_original_slot">Orijinal yuva alınıyor</string>
     <string name="horizon_setting_target_slot">Belirtilen yuva ayarlanıyor</string>
     <string name="horizon_restoring_original_slot">Varsayılan Yuvayı Geri Yükle</string>
-    <string name="current_slot">Mevcut Yuva：%1$s </string>
+    <string name="current_slot">Geçerli varsayılan sistem yuvası: %1$s </string>
     <!-- Error Messages -->
     <string name="horizon_copy_failed">Kopyalama başarısız</string>
     <string name="horizon_unknown_error">Bilinmeyen hata</string>
     <string name="flash_failed_message">Flash\'lama başarısız</string>
     <!-- lkm/gki install -->
     <string name="Lkm_install_methods">LKM onarımı/yükle</string>
-    <string name="GKI_install_methods">GKI/Non-GKI yükle</string>
+    <string name="GKI_install_methods">Flashing AnyKernel3</string>
     <string name="kernel_version_log">Çekirdek sürümü：%1$s</string>
     <string name="tool_version_log">Kullanılan yama aracı：%1$s</string>
     <string name="configuration">Yapılandır</string>
     <string name="app_settings">Uygulama Ayarları</string>
     <string name="tools">Araçlar</string>
-    <string name="currently_selected">Şu anda</string>
     <!--  String resources used in SuperUser -->
     <string name="clear">Kaldır</string>
     <string name="apps_with_root">Root izinlerine sahip uygulamalar</string>
@@ -321,13 +320,18 @@
     <string name="susfs_disabled">SuSFS devre dışı</string>
     <string name="background_set_success">Arka plan başarıyla ayarlandı</string>
     <string name="background_removed">Özel arka planlar kaldırıldı</string>
+    <string name="icon_switch_title">Alternatif simge</string>
+    <string name="icon_switch_summary">Başlatıcı simgesini KernelSU simgesiyle değiştir.</string>
+    <string name="icon_switched">Simge değiştirildi</string>
     <string name="root_require_for_install">Root ayrıcalıkları gerektirir</string>
     <!-- KPM display settings -->
-    <string name="show_kpm_info">KPM İşlevini Görüntüle</string>
-    <string name="show_kpm_info_summary">Ana sayfa ve alt çubukta KPM bilgilerini ve İşlevini görüntüle (Uygulamayı yeniden açmanız gerekir)</string>
+    <string name="show_kpm_info">KPM İşlevini Gizle</string>
+    <string name="show_kpm_info_summary">Ana sayfa ve alt çubuktaki KPM bilgilerini ve işlevini gizler</string>
     <!-- Webui X settings -->
-    <string name="use_webuix">WebUI X kullan</string>
-    <string name="use_webuix_summary">Daha fazla API\'yi destekleyen WebUI X kullanın</string>
+    <string name="use_webuix">Kullanılacak WebUI motorunu seç</string>
+    <string name="engine_auto_select">Otomatik Seçim</string>
+    <string name="engine_force_webuix">WebUI X kullanımını zorla</string>
+    <string name="engine_force_ksu">KSU WebUI kullanımını zorunlu kıl</string>
     <string name="use_webuix_eruda">WebUI X\'e Eruda enjekte et</string>
     <string name="use_webuix_eruda_summary">WebUI X\'e bir hata ayıklama konsolu enjekte edin, böylece hata ayıklama daha kolay olur. Web hata ayıklamanın açık olması gerekir.</string>
     <!-- DPI setting related strings -->
@@ -365,4 +369,5 @@
     <string name="installing_module">Modül yükleniyor %1$d/%2$d</string>
     <string name="module_failed_count">Yeni bir modül yüklenemedi: %d başarısız</string>
     <string name="module_download_error">Modül indirilemedi</string>
+    <string name="kernel_flashing">Çekirdek Flash\'lama</string>
 </resources>

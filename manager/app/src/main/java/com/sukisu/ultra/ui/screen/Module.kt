@@ -8,12 +8,20 @@ import android.util.Log
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.animation.*
+import androidx.compose.animation.core.*
 import androidx.compose.foundation.*
 import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.selection.toggleable
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.*
 import androidx.compose.material.icons.filled.*
@@ -23,9 +31,9 @@ import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
-import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.draw.scale
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.*
 import androidx.compose.ui.res.stringResource
@@ -68,14 +76,24 @@ import com.sukisu.ultra.ui.viewmodel.ModuleViewModel
 import java.util.concurrent.TimeUnit
 import androidx.core.content.edit
 import com.sukisu.ultra.R
-import com.sukisu.ultra.ui.theme.CardConfig.cardElevation
 import com.sukisu.ultra.ui.webui.WebUIXActivity
 import com.dergoogler.mmrl.platform.Platform
 import androidx.core.net.toUri
 import com.dergoogler.mmrl.platform.model.ModuleConfig
 import com.dergoogler.mmrl.platform.model.ModuleConfig.Companion.asModuleConfig
+import com.sukisu.ultra.ui.theme.getCardElevation
 
+// 菜单项数据类
+data class ModuleBottomSheetMenuItem(
+    val icon: ImageVector,
+    val titleRes: Int,
+    val onClick: () -> Unit
+)
 
+/**
+ * @author ShirkNeko
+ * @date 2025/5/31.
+ */
 @OptIn(ExperimentalMaterial3Api::class)
 @Destination<RootGraph>
 @Composable
@@ -85,6 +103,13 @@ fun ModuleScreen(navigator: DestinationsNavigator) {
     val snackBarHost = LocalSnackbarHost.current
     val scope = rememberCoroutineScope()
     val confirmDialog = rememberConfirmDialog()
+    var lastClickTime by remember { mutableStateOf(0L) }
+
+    // BottomSheet状态
+    val bottomSheetState = rememberModalBottomSheetState(
+        skipPartiallyExpanded = true
+    )
+    var showBottomSheet by remember { mutableStateOf(false) }
 
     val selectZipLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.StartActivityForResult()
@@ -144,7 +169,7 @@ fun ModuleScreen(navigator: DestinationsNavigator) {
                 }
             } else {
                 val uri = data.data ?: return@launch
-                    // 单个安装模块
+                // 单个安装模块
                 try {
                     if (!ModuleUtils.isUriAccessible(context, uri)) {
                         snackBarHost.showSnackbar("Unable to access selected module files")
@@ -198,6 +223,34 @@ fun ModuleScreen(navigator: DestinationsNavigator) {
         contract = ActivityResultContracts.StartActivityForResult()
     ) { viewModel.fetchModuleList() }
 
+    // BottomSheet菜单项
+    val bottomSheetMenuItems = remember {
+        listOf(
+            ModuleBottomSheetMenuItem(
+                icon = Icons.Outlined.Save,
+                titleRes = R.string.backup_modules,
+                onClick = {
+                    backupLauncher.launch(ModuleModify.createBackupIntent())
+                    scope.launch {
+                        bottomSheetState.hide()
+                        showBottomSheet = false
+                    }
+                }
+            ),
+            ModuleBottomSheetMenuItem(
+                icon = Icons.Outlined.RestoreFromTrash,
+                titleRes = R.string.restore_modules,
+                onClick = {
+                    restoreLauncher.launch(ModuleModify.createRestoreIntent())
+                    scope.launch {
+                        bottomSheetState.hide()
+                        showBottomSheet = false
+                    }
+                }
+            )
+        )
+    }
+
     Scaffold(
         topBar = {
             SearchAppBar(
@@ -206,95 +259,13 @@ fun ModuleScreen(navigator: DestinationsNavigator) {
                 onSearchTextChange = { viewModel.search = it },
                 onClearClick = { viewModel.search = "" },
                 dropdownContent = {
-                    var showDropdown by remember { mutableStateOf(false) }
-
                     IconButton(
-                        onClick = { showDropdown = true },
+                        onClick = { showBottomSheet = true },
                     ) {
                         Icon(
                             imageVector = Icons.Filled.MoreVert,
                             contentDescription = stringResource(id = R.string.settings),
                         )
-
-                        DropdownMenu(
-                            expanded = showDropdown,
-                            onDismissRequest = { showDropdown = false }
-                        ) {
-                            DropdownMenuItem(
-                                text = { Text(stringResource(R.string.module_sort_action_first)) },
-                                trailingIcon = {
-                                    Checkbox(
-                                        checked = viewModel.sortActionFirst,
-                                        onCheckedChange = null,
-                                        colors = CheckboxDefaults.colors(
-                                            checkedColor = MaterialTheme.colorScheme.primary,
-                                            uncheckedColor = MaterialTheme.colorScheme.outline
-                                        )
-                                    )
-                                },
-                                onClick = {
-                                    viewModel.sortActionFirst = !viewModel.sortActionFirst
-                                    prefs.edit {
-                                        putBoolean(
-                                            "module_sort_action_first",
-                                            viewModel.sortActionFirst
-                                        )
-                                    }
-                                    scope.launch {
-                                        viewModel.fetchModuleList()
-                                    }
-                                }
-                            )
-                            DropdownMenuItem(
-                                text = { Text(stringResource(R.string.module_sort_enabled_first)) },
-                                trailingIcon = {
-                                    Checkbox(
-                                        checked = viewModel.sortEnabledFirst,
-                                        onCheckedChange = null,
-                                        colors = CheckboxDefaults.colors(
-                                            checkedColor = MaterialTheme.colorScheme.primary,
-                                            uncheckedColor = MaterialTheme.colorScheme.outline
-                                        )
-                                    )
-                                },
-                                onClick = {
-                                    viewModel.sortEnabledFirst = !viewModel.sortEnabledFirst
-                                    prefs.edit {
-                                        putBoolean("module_sort_enabled_first", viewModel.sortEnabledFirst)
-                                    }
-                                    scope.launch {
-                                        viewModel.fetchModuleList()
-                                    }
-                                }
-                            )
-                            HorizontalDivider(thickness = Dp.Hairline, modifier = Modifier.padding(vertical = 4.dp))
-                            DropdownMenuItem(
-                                text = { Text(stringResource(R.string.backup_modules)) },
-                                leadingIcon = {
-                                    Icon(
-                                        imageVector = Icons.Outlined.Download,
-                                        contentDescription = stringResource(R.string.backup),
-                                    )
-                                },
-                                onClick = {
-                                    showDropdown = false
-                                    backupLauncher.launch(ModuleModify.createBackupIntent())
-                                }
-                            )
-                            DropdownMenuItem(
-                                text = { Text(stringResource(R.string.restore_modules)) },
-                                leadingIcon = {
-                                    Icon(
-                                        imageVector = Icons.Outlined.Refresh,
-                                        contentDescription = stringResource(R.string.restore),
-                                    )
-                                },
-                                onClick = {
-                                    showDropdown = false
-                                    restoreLauncher.launch(ModuleModify.createRestoreIntent())
-                                }
-                            )
-                        }
                     }
                 },
                 scrollBehavior = scrollBehavior,
@@ -321,10 +292,8 @@ fun ModuleScreen(navigator: DestinationsNavigator) {
                     text = {
                         Text(
                             text = moduleInstall,
-                            color = MaterialTheme.colorScheme.onPrimaryContainer
                         )
                     },
-                    contentColor = MaterialTheme.colorScheme.onPrimaryContainer,
                     expanded = true,
                 )
             }
@@ -349,7 +318,6 @@ fun ModuleScreen(navigator: DestinationsNavigator) {
                         Icon(
                             imageVector = Icons.Outlined.Warning,
                             contentDescription = null,
-                            tint = MaterialTheme.colorScheme.error,
                             modifier = Modifier
                                 .size(64.dp)
                                 .padding(bottom = 16.dp)
@@ -358,7 +326,6 @@ fun ModuleScreen(navigator: DestinationsNavigator) {
                             stringResource(R.string.module_magisk_conflict),
                             textAlign = TextAlign.Center,
                             style = MaterialTheme.typography.bodyLarge,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                     }
                 }
@@ -373,37 +340,60 @@ fun ModuleScreen(navigator: DestinationsNavigator) {
                         navigator.navigate(FlashScreenDestination(FlashIt.FlashModule(it)))
                     },
                     onClickModule = { id, name, hasWebUi ->
+                        val currentTime = System.currentTimeMillis()
+                        if (currentTime - lastClickTime < 600) {
+                            Log.d("ModuleScreen", "Click too fast, ignoring")
+                            return@ModuleList
+                        }
+                        lastClickTime = currentTime
+
                         if (hasWebUi) {
-                            val wxEngine = Intent(context, WebUIXActivity::class.java)
-                                .setData("kernelsu://webuix/$id".toUri())
-                                .putExtra("id", id)
-                                .putExtra("name", name)
+                            try {
+                                val wxEngine = Intent(context, WebUIXActivity::class.java)
+                                    .setData("kernelsu://webuix/$id".toUri())
+                                    .putExtra("id", id)
+                                    .putExtra("name", name)
 
-                            val ksuEngine = Intent(context, WebUIActivity::class.java)
-                                .setData("kernelsu://webui/$id".toUri())
-                                .putExtra("id", id)
-                                .putExtra("name", name)
+                                val ksuEngine = Intent(context, WebUIActivity::class.java)
+                                    .setData("kernelsu://webui/$id".toUri())
+                                    .putExtra("id", id)
+                                    .putExtra("name", name)
 
-                            val config = id.asModuleConfig
-                            val engine = config.getWebuiEngine(context)
-                            if (engine != null) {
-                                webUILauncher.launch(
-                                    when (config.getWebuiEngine(context)) {
-                                        "wx" -> wxEngine
-                                        "ksu" -> ksuEngine
-                                        else -> wxEngine
-                                    }
-                                )
-                                return@ModuleList
-                            }
-
-                            webUILauncher.launch(
-                                if (prefs.getBoolean("use_webuix", true) && Platform.isAlive) {
-                                    wxEngine
-                                } else {
-                                    ksuEngine
+                                val config = try {
+                                    id.asModuleConfig
+                                } catch (e: Exception) {
+                                    Log.e("ModuleScreen", "Failed to get config from id: $id", e)
+                                    null
                                 }
-                            )
+
+                                val globalEngine = prefs.getString("webui_engine", "default") ?: "default"
+                                val moduleEngine = config?.getWebuiEngine(context)
+                                val selectedEngine = when (globalEngine) {
+                                    "wx" -> wxEngine
+                                    "ksu" -> ksuEngine
+                                    "default" -> {
+                                        when (moduleEngine) {
+                                            "wx" -> wxEngine
+                                            "ksu" -> ksuEngine
+                                            else -> {
+                                                if (Platform.isAlive) {
+                                                    wxEngine
+                                                } else {
+                                                    ksuEngine
+                                                }
+                                            }
+                                        }
+                                    }
+                                    else -> ksuEngine
+                                }
+                                webUILauncher.launch(selectedEngine)
+                            } catch (e: Exception) {
+                                Log.e("ModuleScreen", "Error launching WebUI: ${e.message}", e)
+                                scope.launch {
+                                    snackBarHost.showSnackbar("Error launching WebUI: ${e.message}")
+                                }
+                            }
+                            return@ModuleList
                         }
                     },
                     context = context,
@@ -411,6 +401,202 @@ fun ModuleScreen(navigator: DestinationsNavigator) {
                 )
             }
         }
+
+        // BottomSheet
+        if (showBottomSheet) {
+            ModalBottomSheet(
+                onDismissRequest = {
+                    showBottomSheet = false
+                },
+                sheetState = bottomSheetState,
+                dragHandle = {
+                    Surface(
+                        modifier = Modifier.padding(vertical = 11.dp),
+                        color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.4f),
+                        shape = RoundedCornerShape(16.dp)
+                    ) {
+                        Box(
+                            Modifier.size(
+                                width = 32.dp,
+                                height = 4.dp
+                            )
+                        )
+                    }
+                }
+            ) {
+                ModuleBottomSheetContent(
+                    menuItems = bottomSheetMenuItems,
+                    viewModel = viewModel,
+                    prefs = prefs,
+                    scope = scope,
+                    bottomSheetState = bottomSheetState,
+                    onDismiss = { showBottomSheet = false }
+                )
+            }
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun ModuleBottomSheetContent(
+    menuItems: List<ModuleBottomSheetMenuItem>,
+    viewModel: ModuleViewModel,
+    prefs: android.content.SharedPreferences,
+    scope: kotlinx.coroutines.CoroutineScope,
+    bottomSheetState: SheetState,
+    onDismiss: () -> Unit
+) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(bottom = 24.dp)
+    ) {
+        // 标题
+        Text(
+            text = stringResource(R.string.menu_options),
+            style = MaterialTheme.typography.headlineSmall,
+            fontWeight = FontWeight.Bold,
+            modifier = Modifier.padding(horizontal = 24.dp, vertical = 16.dp)
+        )
+
+        // 菜单选项网格
+        LazyVerticalGrid(
+            columns = GridCells.Fixed(4),
+            modifier = Modifier.fillMaxWidth(),
+            contentPadding = PaddingValues(horizontal = 16.dp),
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp)
+        ) {
+            items(menuItems) { menuItem ->
+                ModuleBottomSheetMenuItemView(
+                    menuItem = menuItem
+                )
+            }
+        }
+
+        // 排序选项
+        Spacer(modifier = Modifier.height(24.dp))
+        HorizontalDivider(modifier = Modifier.padding(horizontal = 24.dp))
+
+        Text(
+            text = stringResource(R.string.sort_options),
+            style = MaterialTheme.typography.titleMedium,
+            fontWeight = FontWeight.Bold,
+            modifier = Modifier.padding(horizontal = 24.dp, vertical = 16.dp)
+        )
+
+        // 排序选项
+        Column(
+            modifier = Modifier.padding(horizontal = 24.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            // 优先显示有操作的模块
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = stringResource(R.string.module_sort_action_first),
+                    style = MaterialTheme.typography.bodyMedium
+                )
+                Switch(
+                    checked = viewModel.sortActionFirst,
+                    onCheckedChange = { checked ->
+                        viewModel.sortActionFirst = checked
+                        prefs.edit {
+                            putBoolean("module_sort_action_first", checked)
+                        }
+                        scope.launch {
+                            viewModel.fetchModuleList()
+                            bottomSheetState.hide()
+                            onDismiss()
+                        }
+                    }
+                )
+            }
+
+            // 优先显示已启用的模块
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = stringResource(R.string.module_sort_enabled_first),
+                    style = MaterialTheme.typography.bodyMedium
+                )
+                Switch(
+                    checked = viewModel.sortEnabledFirst,
+                    onCheckedChange = { checked ->
+                        viewModel.sortEnabledFirst = checked
+                        prefs.edit {
+                            putBoolean("module_sort_enabled_first", checked)
+                        }
+                        scope.launch {
+                            viewModel.fetchModuleList()
+                            bottomSheetState.hide()
+                            onDismiss()
+                        }
+                    }
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun ModuleBottomSheetMenuItemView(menuItem: ModuleBottomSheetMenuItem) {
+    // 添加交互状态
+    val interactionSource = remember { MutableInteractionSource() }
+    val isPressed by interactionSource.collectIsPressedAsState()
+
+    val scale by animateFloatAsState(
+        targetValue = if (isPressed) 0.95f else 1.0f,
+        animationSpec = spring(
+            dampingRatio = Spring.DampingRatioMediumBouncy,
+            stiffness = Spring.StiffnessHigh
+        ),
+        label = "menuItemScale"
+    )
+
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .scale(scale)
+            .clickable(
+                interactionSource = interactionSource,
+                indication = null
+            ) { menuItem.onClick() }
+            .padding(8.dp),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Surface(
+            modifier = Modifier.size(48.dp),
+            shape = CircleShape,
+            color = MaterialTheme.colorScheme.primaryContainer,
+            contentColor = MaterialTheme.colorScheme.onPrimaryContainer
+        ) {
+            Box(
+                contentAlignment = Alignment.Center
+            ) {
+                Icon(
+                    imageVector = menuItem.icon,
+                    contentDescription = stringResource(menuItem.titleRes),
+                    modifier = Modifier.size(24.dp)
+                )
+            }
+        }
+
+        Spacer(modifier = Modifier.height(8.dp))
+
+        Text(
+            text = stringResource(menuItem.titleRes),
+            style = MaterialTheme.typography.labelSmall,
+            textAlign = TextAlign.Center,
+            maxLines = 2
+        )
     }
 }
 
@@ -613,7 +799,6 @@ private fun ModuleList(
                                     text = stringResource(R.string.module_empty),
                                     textAlign = TextAlign.Center,
                                     style = MaterialTheme.typography.bodyLarge,
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant
                                 )
                             }
                         }
@@ -699,15 +884,7 @@ fun ModuleItem(
 ) {
     ElevatedCard(
         colors = getCardColors(MaterialTheme.colorScheme.surfaceContainerHigh),
-        elevation = CardDefaults.cardElevation(defaultElevation = cardElevation),
-        modifier = Modifier
-            .fillMaxWidth()
-            .clip(MaterialTheme.shapes.large)
-            .shadow(
-                elevation = cardElevation,
-                shape = MaterialTheme.shapes.large,
-                spotColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.1f)
-            )
+        elevation = getCardElevation(),
     ) {
         val textDecoration = if (!module.remove) null else TextDecoration.LineThrough
         val interactionSource = remember { MutableInteractionSource() }
@@ -750,7 +927,6 @@ fun ModuleItem(
                         lineHeight = MaterialTheme.typography.bodySmall.lineHeight,
                         fontFamily = MaterialTheme.typography.titleMedium.fontFamily,
                         textDecoration = textDecoration,
-                        color = MaterialTheme.colorScheme.onSurface
                     )
 
                     Text(
@@ -759,7 +935,6 @@ fun ModuleItem(
                         lineHeight = MaterialTheme.typography.bodySmall.lineHeight,
                         fontFamily = MaterialTheme.typography.bodySmall.fontFamily,
                         textDecoration = textDecoration,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
 
                     Text(
@@ -768,7 +943,6 @@ fun ModuleItem(
                         lineHeight = MaterialTheme.typography.bodySmall.lineHeight,
                         fontFamily = MaterialTheme.typography.bodySmall.fontFamily,
                         textDecoration = textDecoration,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 }
 
@@ -783,14 +957,6 @@ fun ModuleItem(
                         checked = module.enabled,
                         onCheckedChange = onCheckChanged,
                         interactionSource = if (!module.hasWebUi) interactionSource else null,
-                        colors = SwitchDefaults.colors(
-                            checkedThumbColor = MaterialTheme.colorScheme.onPrimary,
-                            checkedTrackColor = MaterialTheme.colorScheme.primary,
-                            checkedIconColor = MaterialTheme.colorScheme.primary,
-                            uncheckedThumbColor = MaterialTheme.colorScheme.outline,
-                            uncheckedTrackColor = MaterialTheme.colorScheme.surfaceVariant,
-                            uncheckedIconColor = MaterialTheme.colorScheme.surfaceVariant
-                        )
                     )
                 }
             }
@@ -806,7 +972,6 @@ fun ModuleItem(
                 overflow = TextOverflow.Ellipsis,
                 maxLines = 4,
                 textDecoration = textDecoration,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
             )
 
             Spacer(modifier = Modifier.height(16.dp))
@@ -828,7 +993,6 @@ fun ModuleItem(
                             viewModel.markNeedRefresh()
                         },
                         contentPadding = ButtonDefaults.TextButtonContentPadding,
-                        colors = ButtonDefaults.filledTonalButtonColors()
                     ) {
                         Icon(
                             modifier = Modifier.size(20.dp),
@@ -845,7 +1009,6 @@ fun ModuleItem(
                         onClick = { onClick(module) },
                         interactionSource = interactionSource,
                         contentPadding = ButtonDefaults.TextButtonContentPadding,
-                        colors = ButtonDefaults.filledTonalButtonColors()
 
                     ) {
                         Icon(
@@ -865,7 +1028,6 @@ fun ModuleItem(
                         onClick = { onUpdate(module) },
                         shape = ButtonDefaults.textShape,
                         contentPadding = ButtonDefaults.TextButtonContentPadding,
-                        colors = ButtonDefaults.filledTonalButtonColors()
                     ) {
                         Icon(
                             modifier = Modifier.size(20.dp),
@@ -879,8 +1041,6 @@ fun ModuleItem(
                     modifier = Modifier.defaultMinSize(minWidth = 52.dp, minHeight = 32.dp),
                     onClick = { onUninstallClicked(module) },
                     contentPadding = ButtonDefaults.TextButtonContentPadding,
-                    colors = ButtonDefaults.filledTonalButtonColors(
-                        containerColor = if (!module.remove) MaterialTheme.colorScheme.secondaryContainer else MaterialTheme.colorScheme.errorContainer)
                 ) {
                     if (!module.remove) {
                         Icon(
@@ -918,7 +1078,7 @@ fun ModuleItemPreview() {
         hasWebUi = false,
         hasActionScript = false,
         dirId = "dirId",
-        config = ModuleConfig()
+        config = ModuleConfig(),
     )
     ModuleItem(EmptyDestinationsNavigator, module, "", {}, {}, {}, {})
 }

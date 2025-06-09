@@ -192,7 +192,7 @@
     <string name="hide_kernel_kernelsu_version">Hide kernel version</string>
     <string name="hide_kernel_kernelsu_version_summary">Hide kernel version</string>
     <string name="hide_other_info">Hide other info</string>
-    <string name="hide_other_info_summary">Hides information about the number of super users, modules and KPM modules on the home page</string>
+    <string name="hide_other_info_summary">Hides Red dot about the number of super users, modules and KPM modules on the navigation bar page</string>
     <string name="hide_susfs_status">Hide SuSFS status</string>
     <string name="hide_susfs_status_summary">Hide SuSFS status information on the home page</string>
     <string name="hide_link_card">Hide Link Card Status</string>
@@ -212,7 +212,7 @@
     <string name="color_pink">Pink</string>
     <string name="color_gray">Gray</string>
     <string name="color_yellow">Yellow</string>
-    <string name="flash_option">Brush Options</string>
+    <string name="flash_option">Flash Options</string>
     <string name="flash_option_tip">Select the file to be flashed</string>
     <string name="horizon_kernel">Install Anykernel3</string>
     <string name="horizon_kernel_summary">Flash AnyKernel3 kernel file</string>
@@ -247,7 +247,7 @@
     <string name="home_click_to_ContributionCard_kernelsu">SukiSU Ultra will be a relatively independent branch of KSU in the future, but we still appreciate the official KernelSU and MKSU etc. for their contributions!</string>
     <string name="not_supported">Unsupported</string>
     <string name="supported">Supported</string>
-    <string name="home_kpm_module">"Number of KPM modules: %d "</string>
+    <string name="home_kpm_module">"Number of KPMs: %d "</string>
     <string name="kpm_invalid_file">Invalid KPM file</string>
     <string name="kernel_patched">Kernel not patched</string>
     <string name="kernel_not_enabled">Kernel not configured</string>
@@ -291,25 +291,21 @@
     <string name="horizon_getting_original_slot">Getting the original slot</string>
     <string name="horizon_setting_target_slot">Setting the specified slot</string>
     <string name="horizon_restoring_original_slot">Restore Default Slot</string>
-    <string name="current_slot">Current Slot：%1$s </string>
+    <string name="current_slot">Current system default slot：%1$s </string>
     <!-- Error Messages -->
     <string name="horizon_copy_failed">Copy failed</string>
     <string name="horizon_unknown_error">Unknown error</string>
     <string name="flash_failed_message">Flash failed</string>
     <!-- lkm/gki install -->
     <string name="Lkm_install_methods">LKM repair/installation</string>
-    <string name="GKI_install_methods">GKI/non-GKI installation</string>
+    <string name="GKI_install_methods">Flashing AnyKernel3</string>
     <string name="kernel_version_log">Kernel version：%1$s</string>
     <string name="tool_version_log">Using the patching tool：%1$s</string>
     <string name="configuration">Configure</string>
     <string name="app_settings">Application Settings</string>
     <string name="tools">Tools</string>
-    <string name="currently_selected">Currently</string>
     <!--  String resources used in SuperUser -->
     <string name="clear">Removals</string>
-    <string name="apps_with_root">Applications with root privileges</string>
-    <string name="apps_with_custom_profile">Applications with customized configurations</string>
-    <string name="other_apps">Applications with unchanged defaults</string>
     <string name="no_apps_found">Application not found</string>
     <string name="selinux_enabled_toast">SELinux Enabled</string>
     <string name="selinux_disabled_toast">SELinux Disabled</string>
@@ -323,13 +319,18 @@
     <string name="susfs_disabled">SuSFS disabled</string>
     <string name="background_set_success">Background set successfully</string>
     <string name="background_removed">Removed custom backgrounds</string>
+    <string name="icon_switch_title">Alternate icon</string>
+    <string name="icon_switch_summary">Change the launcher icon to KernelSU\'s icon.</string>
+    <string name="icon_switched">Icon switched</string>
     <string name="root_require_for_install">Requires root privileges</string>
     <!-- KPM display settings -->
-    <string name="show_kpm_info">Display KPM Function</string>
-    <string name="show_kpm_info_summary">Display KPM information and Function in home and bottom bar (Need to reopen the app)</string>
+    <string name="show_kpm_info">Hides KPM Function</string>
+    <string name="show_kpm_info_summary">Hides KPM information and Function in home and bottom bar</string>
     <!-- Webui X settings -->
-    <string name="use_webuix">Use WebUI X</string>
-    <string name="use_webuix_summary">Use WebUI X instead of WebUI, which supports more APIs. Be aware that developers can override this feature in their module config.</string>
+    <string name="use_webuix">Select the WebUI engine to use</string>
+    <string name="engine_auto_select">Automatic Selection</string>
+    <string name="engine_force_webuix">Force the use of WebUI X</string>
+    <string name="engine_force_ksu">Mandatory use of KSU WebUI</string>
     <string name="use_webuix_eruda">Inject Eruda into WebUI X</string>
     <string name="use_webuix_eruda_summary">Inject a debug console into WebUI X to make debugging easier. Requires web debugging to be on.</string>
     <!-- DPI setting related strings -->
@@ -351,7 +352,39 @@
     <string name="language_follow_system">Follow System</string>
     <string name="language_changed">Language changed, restarting to apply changes</string>
     <string name="settings_card_dim">Card Darkness Adjustment</string>
-    <!-- Super User Related -->
+    <!-- Flash related -->
+    <string name="error_code">error code</string>
+    <string name="check_log">Please check the log</string>
+    <string name="installing_module">Module being installed %1$d/%2$d</string>
+    <string name="module_failed_count">%d Failed to install a new module</string>
+    <string name="module_download_error">Module download failed</string>
+    <string name="kernel_flashing">Kernel Flashing</string>
+    <!-- 分类相关 -->
+    <string name="category_all_apps">All</string>
+    <string name="category_root_apps">Root</string>
+    <string name="category_custom_apps">Custom</string>
+    <string name="category_default_apps">Default</string>
+    <!-- 排序相关 -->
+    <string name="sort_name_asc">Ascending order of name</string>
+    <string name="sort_name_desc">Name descending</string>
+    <string name="sort_install_time_new">Installation time (new)</string>
+    <string name="sort_install_time_old">Installation time (old)</string>
+    <string name="sort_size_desc">descending order of size</string>
+    <string name="sort_size_asc">ascending order of size</string>
+    <string name="sort_usage_freq">frequency of use</string>
+    <!-- 状态相关 -->
+    <string name="no_apps_in_category">No application in this category</string>
+    <!-- 标签相关 -->
+    <string name="label_root">Root</string>
+    <string name="label_unmount">Unmount</string>
+    <string name="label_custom">Custom</string>
+    <!-- FAB菜单相关 -->
+    <string name="deny_authorization">Delegation of authority</string>
+    <string name="grant_authorization">Authorizations</string>
+    <string name="unmount_modules">Unmounting Module Mounts</string>
+    <string name="disable_unmount">Disable uninstall module mounting</string>
+    <string name="expand_menu">Expand menu</string>
+    <string name="collapse_menu">Put away the menu</string>
     <string name="scroll_to_top">Top</string>
     <string name="scroll_to_bottom">Bottom</string>
     <string name="scroll_to_top_description">Scroll to top</string>
@@ -361,10 +394,8 @@
     <string name="selected">Selected</string>
     <string name="select">option</string>
     <string name="profile_umount_modules_disable">Disable custom uninstallation module</string>
-    <!-- Flash related -->
-    <string name="error_code">error code</string>
-    <string name="check_log">Please check the log</string>
-    <string name="installing_module">Module being installed %1$d/%2$d</string>
-    <string name="module_failed_count">%d Failed to install a new module</string>
-    <string name="module_download_error">Module download failed</string>
+    <!-- BottomSheet相关 -->
+    <string name="menu_options">Menu Options</string>
+    <string name="sort_options">Sort by</string>
+    <string name="app_categories">Application Type Selection</string>
 </resources>

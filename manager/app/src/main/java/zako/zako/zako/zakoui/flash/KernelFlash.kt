@@ -1,4 +1,4 @@
-package com.sukisu.ultra.flash
+package zako.zako.zako.zakoui.flash
 
 import android.app.Activity
 import android.content.Context
@@ -27,6 +27,11 @@ import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
 
+
+/**
+ * @author ShirkNeko
+ * @date 2025/5/31.
+ */
 data class FlashState(
     val isFlashing: Boolean = false,
     val isCompleted: Boolean = false,
