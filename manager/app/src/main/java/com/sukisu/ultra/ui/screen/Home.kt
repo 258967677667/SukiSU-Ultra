@@ -725,7 +725,7 @@ private fun InfoCard(
 
             if (!isSimpleMode) {
                 // 根据showKpmInfo决定是否显示KPM信息
-                if (lkmMode != true && !showKpmInfo && Natives.version >= Natives.MINIMAL_SUPPORTED_KPM) {
+                if (lkmMode != true && !showKpmInfo) {
                     val displayVersion = if (systemInfo.kpmVersion.isEmpty() || systemInfo.kpmVersion.startsWith("Error")) {
                         val statusText = if (Natives.isKPMEnabled()) {
                             stringResource(R.string.kernel_patched)
@@ -798,7 +798,7 @@ private fun StatusCardPreview() {
         StatusCard(
             HomeViewModel.SystemStatus(
                 isManager = true,
-                ksuVersion = 1,
+                ksuVersion = 1.toString(),
                 lkmMode = null,
                 kernelVersion = KernelVersion(5, 10, 101),
                 isRootAvailable = true
@@ -808,7 +808,7 @@ private fun StatusCardPreview() {
         StatusCard(
             HomeViewModel.SystemStatus(
                 isManager = true,
-                ksuVersion = 20000,
+                ksuVersion = 20000.toString(),
                 lkmMode = true,
                 kernelVersion = KernelVersion(5, 10, 101),
                 isRootAvailable = true

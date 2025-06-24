@@ -31,6 +31,8 @@ object Natives {
     const val ROOT_UID = 0
     const val ROOT_GID = 0
 
+    external fun getFullVersion(): String
+
     init {
         System.loadLibrary("zako")
     }

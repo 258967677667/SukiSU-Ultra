@@ -36,7 +36,7 @@ class HomeViewModel : ViewModel() {
     // 系统状态
     data class SystemStatus(
         val isManager: Boolean = false,
-        val ksuVersion: Int? = null,
+        val ksuVersion: String? = null,
         val lkmMode: Boolean? = null,
         val kernelVersion: KernelVersion = getKernelVersion(),
         val isRootAvailable: Boolean = false,
@@ -166,9 +166,9 @@ class HomeViewModel : ViewModel() {
             try {
                 val kernelVersion = getKernelVersion()
                 val isManager = Natives.becomeManager(ksuApp.packageName)
-                val ksuVersion = if (isManager) Natives.version else null
+                val ksuVersion = if (isManager) Natives.getFullVersion() else null
                 val lkmMode = ksuVersion?.let {
-                    if (it >= Natives.MINIMAL_SUPPORTED_KERNEL_LKM && kernelVersion.isGKI()) Natives.isLkmMode else null
+                    if (it >= Natives.MINIMAL_SUPPORTED_KERNEL_LKM.toString() && kernelVersion.isGKI()) Natives.isLkmMode else null
                 }
 
                 systemStatus = SystemStatus(
